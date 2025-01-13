@@ -1,10 +1,10 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import HomeScreen from '../screens/HomeScreen'
 import LoginScreen from '../screens/LoginScreen'
 import SignupScreen from '../screens/SignupScreen'
 import RecipeDetail from '../screens/RecipeDetail'
+import { AuthContext } from '../context/AuthContext'
 
 export type RootStackParamsList = {
     Login: undefined,
@@ -16,8 +16,23 @@ export type RootStackParamsList = {
 const Stack = createNativeStackNavigator()
 
 const RootNavigation: React.FC = () => {
+    const { isAuthenticated } = useContext(AuthContext);
+    const [initialRoute, setInitialRoute] = useState<keyof RootStackParamsList>('Login');
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            setInitialRoute('Home');
+        } else {
+            setInitialRoute('Login');
+        }
+    }, [isAuthenticated]);
+
+    if (initialRoute === null) {
+        return null;
+    }
+
     return (
-        <Stack.Navigator initialRouteName='Login'>
+        <Stack.Navigator initialRouteName={initialRoute}>
             <Stack.Screen name='Login' component={LoginScreen} options={{ headerShown: false }} />
             <Stack.Screen name='Home' component={HomeScreen} options={{ headerShown: false }} />
             <Stack.Screen name='Signup' component={SignupScreen} options={{ headerShown: false }} />
